@@ -39,51 +39,41 @@ logger.setLevel(level=logging.DEBUG)
 
 
 class Renamefile:
-    FILE_PATH=r"D:\github_repo\test\nuclei-templates-9.9.0"
+    FILE_PATH=r"C:\Users\loong\Desktop\nuclei-templates-9.5.0\network\cves"
 
     #modify yaml file
     def get_modify_fileinfo(self,file):
         file_name=os.path.basename(file)
-        try:
-            with open(file,"r+",encoding='utf-8') as f:
-                data=yaml.safe_load(f)
-                logger.warning(file)
-                # print(data)
-                a=data['id']
-                b=data['info']['name']
-                if "CVE-" in file_name or "CNVD-" in file_name:
-                # logger.warning(data['info']['tags'])
-                    a="("+a+")"
-                    return "-".join([b,a])+".yaml"
-                else:
-                    return b+".yaml"
-        except Exception as e:
-            logger.critical(file_name)
-            logger.critical(e)
+        with open(file,"r+",encoding='utf-8') as f:
+            data=yaml.safe_load(f)
+            logger.warning(file)
+            print(data)
+            a=data['id']
+            b=data['info']['name']
+            if "CVE-" in file_name or "CNVD-" in file_name:
+            # logger.warning(data['info']['tags'])
+                a="("+a+")"
+                return "-".join([b,a])+".yaml"
+            else:
+                return b+".yaml"
 
     def file_rename(self,file,root,newname):
+        newname=re.sub(r'[\/:*?"<>|=]',"", newname)
+        newname=newname.replace(" ","-")
+        newname=re.sub(r"-{2,}",r"-", newname)
+        if newname.startswith("Detect-"):
+            newname=newname.replace("Detect-","")
+            newname=newname.replace(".yaml","")
+            newname=newname+"-detect.yaml"
+        
+        newname=os.path.join(root,newname)
+        newname = "\\".join(newname.split("\\"))
         try:
-            newname=re.sub(r'[\/:*?"<>|=]',"", newname)
-            newname=newname.replace(" ","-")
-            newname=re.sub(r"-{2,}",r"-", newname)
-            if newname.startswith("Detect-"):
-                newname=newname.replace("Detect-","")
-                newname=newname.replace(".yaml","")
-                newname=newname+"-detect.yaml"
-            
-            newname=os.path.join(root,newname)
-            newname = "\\".join(newname.split("\\"))
-
-            try:
-                if not os.path.exists(newname):
-                    os.rename(file,newname)
-            except Exception as e:
-                logger.error(e)
-            pass
+            if not os.path.exists(newname):
+                os.rename(file,newname)
         except Exception as e:
-            logger.critical(e)
-    
-
+            logger.error(e)
+        pass
 
 
     def get_filename_list(self):
