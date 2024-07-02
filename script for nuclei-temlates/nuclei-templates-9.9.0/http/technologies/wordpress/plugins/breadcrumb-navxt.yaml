@@ -1,0 +1,50 @@
+id: wordpress-breadcrumb-navxt
+
+info:
+  name: Breadcrumb NavXT Detection
+  author: ricardomaia
+  severity: info
+  reference:
+    - https://wordpress.org/plugins/breadcrumb-navxt/
+  metadata:
+    plugin_namespace: breadcrumb-navxt
+    wpscan: https://wpscan.com/plugin/breadcrumb-navxt
+  tags: tech,wordpress,wp-plugin,top-100,top-200
+
+http:
+  - method: GET
+
+    path:
+      - "{{BaseURL}}/wp-content/plugins/breadcrumb-navxt/readme.txt"
+
+    payloads:
+      last_version: helpers/wordpress/plugins/breadcrumb-navxt.txt
+
+    extractors:
+      - type: regex
+        part: body
+        internal: true
+        name: internal_detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+      - type: regex
+        part: body
+        name: detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+    matchers-condition: or
+    matchers:
+      - type: dsl
+        name: "outdated_version"
+        dsl:
+          - compare_versions(internal_detected_version, concat("< ", last_version))
+
+      - type: regex
+        part: body
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+# digest: 490a00463044022003200d1425abf3dc81fe7a1d8596b8bb5b70222aa001bd0043896425a1fbc15202202655661d8946291b42260603b12ce357c22a15718375d95277ca05efb30a9eb6:922c64590222798bb761d5b6d8e72950

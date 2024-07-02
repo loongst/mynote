@@ -1,6 +1,7 @@
 import configparser
 import re
 import os
+import shutil
 import logging
 import pip
 try:
@@ -24,10 +25,14 @@ class myreplace:
         self.projectname="/"+config.get("env","projectname") if config.get("env","projectname") else ""
         self.ip_server=config.get("env","ip_server")
         self.port_server=config.get("env","port_server")
+        self.user_server=config.get("env","ip_server")
+        self.passwd_server=config.get("env","port_server")
+
         self.ip_db=config.get("mysql","ip_db")
         self.name_db=config.get("mysql","name_db")
         self.user=config.get("mysql","user")
         self.passwd=config.get("mysql","passwd")
+        self.dir_to_exclude=config.get("exclude_dir","dir_to_exclude")
 
         #当前目录
         self.case_root_dir=os.getcwd()
@@ -59,6 +64,16 @@ class myreplace:
         rows_count=sheet.used_range.shape[0]
         logging.warning("row count: "+str(rows_count))
         for i in range(2,rows_count+1):
+            
+            # 替换登录请求数据
+            if self.user_server.isdigit():
+                if "登录接口" in sheet["C{}".format(i)].value and "/login" in  sheet["E{}".format(i)].value:
+                    auth_req= sheet["J{}".format(i)].value
+                    auth_req.replace("")       
+
+                    多个用户如何替换
+                    pass
+
             course=sheet["E{}".format(i)].value
             if course:
                 course=course.replace('/websms',self.projectname)
@@ -93,11 +108,20 @@ class myreplace:
         wb.save()
         wb.close()
 
+    def replace_auth(self,filepath):
+        pass
+        
+
 
 
     #遍历目录下的文件
     def Traversal_file(self):
         for root,dirs,files in os.walk(self.case_root_dir):
+            for dir in list(dirs):
+                if dir in self.dir_to_exclude.split(","):
+                    dirs.remove(dir)
+                    shutil.rmtree(dir)
+                    continue
 
             for file in files:
                 abpath=os.path.join(root,file)

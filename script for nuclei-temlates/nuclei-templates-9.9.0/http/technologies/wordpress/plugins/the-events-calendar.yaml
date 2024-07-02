@@ -1,0 +1,50 @@
+id: wordpress-the-events-calendar
+
+info:
+  name: The Events Calendar Detection
+  author: ricardomaia
+  severity: info
+  reference:
+    - https://wordpress.org/plugins/the-events-calendar/
+  metadata:
+    plugin_namespace: the-events-calendar
+    wpscan: https://wpscan.com/plugin/the-events-calendar
+  tags: tech,wordpress,wp-plugin,top-100,top-200
+
+http:
+  - method: GET
+
+    path:
+      - "{{BaseURL}}/wp-content/plugins/the-events-calendar/readme.txt"
+
+    payloads:
+      last_version: helpers/wordpress/plugins/the-events-calendar.txt
+
+    extractors:
+      - type: regex
+        part: body
+        internal: true
+        name: internal_detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+      - type: regex
+        part: body
+        name: detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+    matchers-condition: or
+    matchers:
+      - type: dsl
+        name: "outdated_version"
+        dsl:
+          - compare_versions(internal_detected_version, concat("< ", last_version))
+
+      - type: regex
+        part: body
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+# digest: 490a0046304402205c503610e368f018fbc2493ec03de072ec8401d1e7fc7eb78e47bc036c6d0452022064ea5df1438521f06a3844eb377678140acbd2492f25d67e21e1a97148c6b27a:922c64590222798bb761d5b6d8e72950

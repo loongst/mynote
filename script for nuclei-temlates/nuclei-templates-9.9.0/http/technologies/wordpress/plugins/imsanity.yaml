@@ -1,0 +1,50 @@
+id: wordpress-imsanity
+
+info:
+  name: Imsanity Detection
+  author: ricardomaia
+  severity: info
+  reference:
+    - https://wordpress.org/plugins/imsanity/
+  metadata:
+    plugin_namespace: imsanity
+    wpscan: https://wpscan.com/plugin/imsanity
+  tags: tech,wordpress,wp-plugin,top-200
+
+http:
+  - method: GET
+
+    path:
+      - "{{BaseURL}}/wp-content/plugins/imsanity/readme.txt"
+
+    payloads:
+      last_version: helpers/wordpress/plugins/imsanity.txt
+
+    extractors:
+      - type: regex
+        part: body
+        internal: true
+        name: internal_detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+      - type: regex
+        part: body
+        name: detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+    matchers-condition: or
+    matchers:
+      - type: dsl
+        name: "outdated_version"
+        dsl:
+          - compare_versions(internal_detected_version, concat("< ", last_version))
+
+      - type: regex
+        part: body
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+# digest: 4b0a00483046022100b426bd27e56f26cba6d3d2c32f4364ba39d56f9cb988fee076650a24d497c51b022100812453d4f89abde4640e166f13fddfda6b43366ef6611b80525c77d3b0ee31a3:922c64590222798bb761d5b6d8e72950

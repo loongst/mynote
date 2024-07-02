@@ -1,0 +1,50 @@
+id: wordpress-facebook-for-woocommerce
+
+info:
+  name: Facebook for WooCommerce Detection
+  author: ricardomaia
+  severity: info
+  reference:
+    - https://wordpress.org/plugins/facebook-for-woocommerce/
+  metadata:
+    plugin_namespace: facebook-for-woocommerce
+    wpscan: https://wpscan.com/plugin/facebook-for-woocommerce
+  tags: tech,wordpress,wp-plugin,top-200
+
+http:
+  - method: GET
+
+    path:
+      - "{{BaseURL}}/wp-content/plugins/facebook-for-woocommerce/readme.txt"
+
+    payloads:
+      last_version: helpers/wordpress/plugins/facebook-for-woocommerce.txt
+
+    extractors:
+      - type: regex
+        part: body
+        internal: true
+        name: internal_detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+      - type: regex
+        part: body
+        name: detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+    matchers-condition: or
+    matchers:
+      - type: dsl
+        name: "outdated_version"
+        dsl:
+          - compare_versions(internal_detected_version, concat("< ", last_version))
+
+      - type: regex
+        part: body
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+# digest: 490a004630440220327fd5ed9f3e666d23f4f1c7c928b96ac3c7331e2a1f4213d2ae6656ddbfd3f102203115a840ea5de3807f85a19661fb342a503d0440c6f0ce8ca95bb0258b835eb1:922c64590222798bb761d5b6d8e72950

@@ -1,0 +1,50 @@
+id: wordpress-fluentform
+
+info:
+  name: Contact Form Plugin by Fluent Forms for Quiz, Survey, and Drag & Drop WP Form Builder Detection
+  author: ricardomaia
+  severity: info
+  reference:
+    - https://wordpress.org/plugins/fluentform/
+  metadata:
+    plugin_namespace: fluentform
+    wpscan: https://wpscan.com/plugin/fluentform
+  tags: tech,wordpress,wp-plugin,top-200
+
+http:
+  - method: GET
+
+    path:
+      - "{{BaseURL}}/wp-content/plugins/fluentform/readme.txt"
+
+    payloads:
+      last_version: helpers/wordpress/plugins/fluentform.txt
+
+    extractors:
+      - type: regex
+        part: body
+        internal: true
+        name: internal_detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+      - type: regex
+        part: body
+        name: detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+    matchers-condition: or
+    matchers:
+      - type: dsl
+        name: "outdated_version"
+        dsl:
+          - compare_versions(internal_detected_version, concat("< ", last_version))
+
+      - type: regex
+        part: body
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+# digest: 490a0046304402206bd171350ab49d8b39d4a702ed2146d140042ed6b2408b4cf4399be3b2a5467d0220269770701fd1081866e4c551d8aebce6ad58d37fa2228de535ec765d8318d959:922c64590222798bb761d5b6d8e72950

@@ -1,0 +1,50 @@
+id: wordpress-all-in-one-wp-migration
+
+info:
+  name: All-in-One WP Migration and Backup Detection
+  author: ricardomaia
+  severity: info
+  reference:
+    - https://wordpress.org/plugins/all-in-one-wp-migration/
+  metadata:
+    plugin_namespace: all-in-one-wp-migration
+    wpscan: https://wpscan.com/plugin/all-in-one-wp-migration
+  tags: tech,wordpress,wp-plugin,top-100,top-200
+
+http:
+  - method: GET
+
+    path:
+      - "{{BaseURL}}/wp-content/plugins/all-in-one-wp-migration/readme.txt"
+
+    payloads:
+      last_version: helpers/wordpress/plugins/all-in-one-wp-migration.txt
+
+    extractors:
+      - type: regex
+        part: body
+        internal: true
+        name: internal_detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+      - type: regex
+        part: body
+        name: detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+    matchers-condition: or
+    matchers:
+      - type: dsl
+        name: "outdated_version"
+        dsl:
+          - compare_versions(internal_detected_version, concat("< ", last_version))
+
+      - type: regex
+        part: body
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+# digest: 490a00463044022004146523b6d25b5b01c1b5cea9a3a070c7ec3e0039ab6929237c11e91c12c7060220392366b25d7541ef75519e8e45800913c5383b992923d9b438e23803f5b431bb:922c64590222798bb761d5b6d8e72950

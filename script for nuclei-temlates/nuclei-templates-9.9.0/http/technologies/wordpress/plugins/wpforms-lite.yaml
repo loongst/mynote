@@ -1,0 +1,50 @@
+id: wordpress-wpforms-lite
+
+info:
+  name: Contact Form by WPForms – Drag & Drop Form Builder for WordPress Detection
+  author: ricardomaia
+  severity: info
+  reference:
+    - https://wordpress.org/plugins/wpforms-lite/
+  metadata:
+    plugin_namespace: wpforms-lite
+    wpscan: https://wpscan.com/plugin/wpforms-lite
+  tags: tech,wordpress,wp-plugin,top-100,top-200
+
+http:
+  - method: GET
+
+    path:
+      - "{{BaseURL}}/wp-content/plugins/wpforms-lite/readme.txt"
+
+    payloads:
+      last_version: helpers/wordpress/plugins/wpforms-lite.txt
+
+    extractors:
+      - type: regex
+        part: body
+        internal: true
+        name: internal_detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+      - type: regex
+        part: body
+        name: detected_version
+        group: 1
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+
+    matchers-condition: or
+    matchers:
+      - type: dsl
+        name: "outdated_version"
+        dsl:
+          - compare_versions(internal_detected_version, concat("< ", last_version))
+
+      - type: regex
+        part: body
+        regex:
+          - '(?i)Stable.tag:\s?([\w.]+)'
+# digest: 4a0a00473045022017d2de675d86c291260797b01931f229e4a835759d7c39b55bc2a4850740c5cb022100f53d0e85f4b22283a293de3ca4209d2e1f4d24a34dcb9bc9ffb028f6ff9b7c69:922c64590222798bb761d5b6d8e72950
